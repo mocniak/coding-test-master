@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+    database:
+        image: mysql:5.7
+        environment:
+            MYSQL_ROOT_PASSWORD: iAmGroot
+            MYSQL_DATABASE: coding-test
+        ports:
+            - 3306
