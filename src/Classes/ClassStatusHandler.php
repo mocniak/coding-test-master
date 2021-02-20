@@ -1,11 +1,9 @@
 <?php
 
-
 namespace App\Classes;
 
 use App\Entity\Klass;
 use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
@@ -31,7 +29,7 @@ class ClassStatusHandler implements EventSubscriber
             if ($class->getStudents()->count() >= 4) {
                 return self::FULL;
             }
-            
+
             return self::BOOKED;
         } else {
             if ($class->getStartsAt()->diff(new DateTime())->days < 2) {
