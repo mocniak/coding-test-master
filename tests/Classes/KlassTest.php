@@ -7,25 +7,21 @@ use App\Entity\Klass;
 use App\Entity\User;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\TestCase;
 
-class ClassStatusHandlerTest extends KernelTestCase
+class KlassTest extends TestCase
 {
     private EntityManagerInterface $entityManager;
     private Klass $klass;
 
     protected function setUp(): void
     {
-        parent::setUp();
-        self::bootKernel();
+        $this->klass = (new Klass('Class topic', new \DateTimeImmutable('2013-04-27 17:00')));
+    }
 
-        $this->entityManager = self::$container->get(EntityManagerInterface::class);
-        $this->klass = (new Klass())
-            ->setStartsAt(new DateTime('2013-04-27 17:00'))
-            ->setTopic('Class topic')
-        ;
-        $this->entityManager->persist($this->klass);
-        $this->entityManager->flush();
+    public function testPropertiesAssignment()
+    {
+        self::assertEquals('Class topic', $this->klass->topic());
     }
 
     public function testStatusChanges(): void
@@ -34,13 +30,10 @@ class ClassStatusHandlerTest extends KernelTestCase
 
         $user = $this->createUser();
         $this->klass->addStudent($user);
-        $this->entityManager->flush();
 
         self::assertSame(ClassStatusHandler::BOOKED, $this->klass->getStatus());
 
         $this->klass->removeStudent($user);
-
-        $this->entityManager->flush();
 
         self::assertSame(ClassStatusHandler::SCHEDULED, $this->klass->getStatus());
 
@@ -48,13 +41,11 @@ class ClassStatusHandlerTest extends KernelTestCase
         $this->klass->addStudent($this->createUser());
         $this->klass->addStudent($this->createUser());
         $this->klass->addStudent($this->createUser());
-        $this->entityManager->flush();
 
         self::assertSame(ClassStatusHandler::FULL, $this->klass->getStatus());
 
         $this->klass->getStudents()->clear();
         $this->klass->setStartsAt(new DateTime('-1 day'));
-        $this->entityManager->flush();
 
         self::assertSame(ClassStatusHandler::CANCELLED, $this->klass->getStatus());
     }
@@ -66,8 +57,6 @@ class ClassStatusHandlerTest extends KernelTestCase
             ->setEmail("user-$suffix@lingoda.com")
             ->setPassword('…')
         ;
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
 
         return $user;
     }

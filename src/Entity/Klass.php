@@ -49,9 +49,11 @@ class Klass
      */
     private ?ClassRating $rating = null;
 
-    public function __construct()
+    public function __construct(string $topic, \DateTimeImmutable $startsAt)
     {
         $this->students = new ArrayCollection();
+        $this->topic = $topic;
+        $this->startsAt = $startsAt;
     }
 
     /**
@@ -65,7 +67,7 @@ class Klass
     /**
      * @Groups("api")
      */
-    public function getStartsAt(): DateTimeInterface
+    public function startsAt(): DateTimeInterface
     {
         return $this->startsAt;
     }
@@ -93,7 +95,7 @@ class Klass
     /**
      * @Groups("api")
      */
-    public function getTopic(): string
+    public function topic(): string
     {
         return $this->topic;
     }
