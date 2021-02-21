@@ -11,7 +11,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 /**
  * Sets the correct class status based on bookings and cancellations
  */
-class ClassStatusHandler implements EventSubscriber
+class ClassStatusHandler
 {
     const SCHEDULED = 'scheduled';
     const BOOKED = 'booked';
@@ -20,7 +20,7 @@ class ClassStatusHandler implements EventSubscriber
 
     public function updateClassStatus(Klass $class): void
     {
-        $class->setStatus($this->getStatus($class));
+//        $class->setStatus($this->getStatus($class));
     }
 
     private function getStatus(Klass $class): string
@@ -43,25 +43,5 @@ class ClassStatusHandler implements EventSubscriber
     public function getSubscribedEvents()
     {
         return [Events::prePersist, Events::preUpdate];
-    }
-
-    public function prePersist(LifecycleEventArgs $args): void
-    {
-        $class = $args->getObject();
-        if (!$class instanceof Klass) {
-            return;
-        }
-
-        $this->updateClassStatus($class);
-    }
-
-    public function preUpdate(LifecycleEventArgs $args): void
-    {
-        $class = $args->getObject();
-        if (!$class instanceof Klass) {
-            return;
-        }
-
-        $this->updateClassStatus($class);
     }
 }
