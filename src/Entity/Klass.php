@@ -47,75 +47,46 @@ class Klass
     /**
      * @ORM\OneToOne (targetEntity=ClassRating::class, mappedBy="class")
      */
-    private ?ClassRating $rating = null;
+    private ?ClassRating $rating;
 
     public function __construct(string $topic, \DateTimeImmutable $startsAt)
     {
         $this->students = new ArrayCollection();
+        $this->rating = null;
         $this->topic = $topic;
         $this->startsAt = $startsAt;
     }
 
-    /**
-     * @Groups("api")
-     */
     public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @Groups("api")
-     */
     public function startsAt(): DateTimeInterface
     {
         return $this->startsAt;
     }
 
-    public function setStartsAt(DateTimeInterface $startsAt): self
+    public function changeStartsAt(DateTimeInterface $startsAt): self
     {
         $this->startsAt = $startsAt;
 
         return $this;
     }
 
-    /**
-     * @Groups("api")
-     */
-    public function getStatus(): string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): void
-    {
-        $this->status = $status;
-    }
-
-    /**
-     * @Groups("api")
-     */
     public function topic(): string
     {
         return $this->topic;
     }
 
-    public function setTopic(string $topic): self
+    public function changeTopic(string $topic): self
     {
         $this->topic = $topic;
 
         return $this;
     }
 
-    /**
-     * @Groups("api")
-     */
-    public function getStudents(): Collection
-    {
-        return $this->students;
-    }
-
-    public function addStudent(User $user): self
+    public function enroll(User $user): self
     {
         $this->students->add($user);
 
@@ -129,10 +100,7 @@ class Klass
         return $this;
     }
 
-    /**
-     * @Groups("api")
-     */
-    public function getRating(): ?ClassRating
+    public function rating(): ?ClassRating
     {
         return $this->rating;
     }

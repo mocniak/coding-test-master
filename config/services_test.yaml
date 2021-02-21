@@ -5,3 +5,10 @@ services:
 
     App\Tests\Behat\:
         resource: '../tests/Behat/*'
+
+
+security:
+    firewalls:
+        dev:
+            pattern:  ^/
+            security: false
