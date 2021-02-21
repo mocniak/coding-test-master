@@ -4,7 +4,8 @@ namespace App\Controller;
 
 use App\Classes\ClassStatusHandler;
 use App\Entity\Klass;
-use App\Repository\KlassRepository;
+use App\Query\KlassListQuery;
+use App\Query\KlassView;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -18,9 +19,11 @@ class ClassController extends AbstractController
     /**
      * @Route("", methods={"GET"})
      */
-    public function all(KlassRepository $klassRepo): JsonResponse
+    public function all(KlassListQuery $klassListQuery): JsonResponse
     {
-        return $this->apiJson($klassRepo->findAll());
+        return new JsonResponse(array_map(function (KlassView $klass): array {
+            return ['id' => $klass->id];
+        }, $klassListQuery->getAll()));
     }
 
     /**
@@ -32,7 +35,7 @@ class ClassController extends AbstractController
             throw new BadRequestHttpException('Class is full');
         }
 
-        $klass->addStudent($this->ensureUser());
+        $klass->enroll($this->ensureUser());
 
         $entityManager->flush();
 
