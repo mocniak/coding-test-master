@@ -22,7 +22,13 @@ class ClassController extends AbstractController
     public function all(KlassListQuery $klassListQuery): JsonResponse
     {
         return new JsonResponse(array_map(function (KlassView $klass): array {
-            return ['id' => $klass->id];
+            return [
+                'id' => $klass->id,
+                'startsAt' => $klass->startsAt->format(\DateTimeInterface::ISO8601),
+                'status' => 'scheduled',
+                'topic' => $klass->topic,
+                'students' => [],
+                ];
         }, $klassListQuery->getAll()));
     }
 

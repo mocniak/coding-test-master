@@ -18,14 +18,14 @@ class DbalKlassListQuery implements KlassListQuery
     {
         $queryBuilder = $this->connection->createQueryBuilder();
         $queryBuilder
-            ->select('k.id', 'k.topic')
+            ->select('k.id', 'k.starts_at', 'k.topic')
             ->from('klass', 'k')
         ;
 
         $klassData = $this->connection->fetchAll($queryBuilder->getSQL(), $queryBuilder->getParameters());
 
         return array_map(function (array $klassData) {
-            return new KlassView((int) $klassData['id']);
+            return new KlassView((int) $klassData['id'], new \DateTimeImmutable($klassData['starts_at']), $klassData['topic']);
         }, $klassData);
     }
 }
