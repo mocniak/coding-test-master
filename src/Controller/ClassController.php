@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Klass;
 use App\Query\KlassListQuery;
+use App\Query\KlassView;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -35,7 +36,7 @@ class ClassController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->apiJson($klass);
+        return $this->apiJson(KlassView::fromKlass($klass));
     }
 
     /**
@@ -47,6 +48,6 @@ class ClassController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->apiJson($klass);
+        return $this->apiJson(KlassView::fromKlass($klass));
     }
 }
