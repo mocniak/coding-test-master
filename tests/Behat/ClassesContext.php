@@ -131,4 +131,18 @@ final class ClassesContext implements Context
         $expected = ['id' => $expectedStudentId];
         Assert::inArray($expected, $returnedStudents);
     }
+
+    /**
+     * @When I don't see user :username's email address in :classTopic class
+     */
+    public function iDontSeeUserSEmailAddressInClass($username, $classTopic)
+    {
+        $classes = json_decode($this->response->getContent(), true);
+        $class = array_filter($classes, function (array $class) use ($classTopic) {
+            return $class['topic'] === $classTopic;
+        })[0];
+        foreach ($class['students'] as $student) {
+            Assert::keyNotExists($student, 'email');
+        }
+    }
 }
