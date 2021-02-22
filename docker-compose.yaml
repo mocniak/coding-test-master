@@ -6,4 +6,4 @@ services:
             MYSQL_ROOT_PASSWORD: iAmGroot
             MYSQL_DATABASE: coding-test
         ports:
-            - 3306
+            - "33061:3306"

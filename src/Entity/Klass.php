@@ -1,15 +1,12 @@
 <?php
 
-
 namespace App\Entity;
 
-use App\Classes\ClassStatusHandler;
-use DateTimeInterface;
+use App\Exception\StudentEnrolledToFullKlassException;
+use App\Repository\KlassRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\KlassRepository;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=KlassRepository::class)
@@ -17,6 +14,12 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Klass
 {
+    const SCHEDULED = 'scheduled';
+    const BOOKED = 'booked';
+    const CANCELLED = 'cancelled';
+    const FULL = 'full';
+
+    const MAXIMUM_CAPACITY = 4;
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -25,14 +28,9 @@ class Klass
     private int $id;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime_immutable")
      */
-    private DateTimeInterface $startsAt;
-
-    /**
-     * @ORM\Column(type="string")
-     */
-    private string $status = ClassStatusHandler::SCHEDULED;
+    private \DateTimeImmutable $startsAt;
 
     /**
      * @ORM\Column(type="string")
@@ -47,74 +45,51 @@ class Klass
     /**
      * @ORM\OneToOne (targetEntity=ClassRating::class, mappedBy="class")
      */
-    private ?ClassRating $rating = null;
+    private ?ClassRating $rating;
 
-    public function __construct()
+    public function __construct(string $topic, \DateTimeImmutable $startsAt)
     {
         $this->students = new ArrayCollection();
+        $this->rating = null;
+        $this->topic = $topic;
+        $this->startsAt = $startsAt;
     }
 
-    /**
-     * @Groups("api")
-     */
-    public function getId(): int
+    public function id(): int
     {
         return $this->id;
     }
 
-    /**
-     * @Groups("api")
-     */
-    public function getStartsAt(): DateTimeInterface
+    public function startsAt(): \DateTimeImmutable
     {
         return $this->startsAt;
     }
 
-    public function setStartsAt(DateTimeInterface $startsAt): self
+    public function changeStartsAt(\DateTimeImmutable $startsAt): self
     {
         $this->startsAt = $startsAt;
 
         return $this;
     }
 
-    /**
-     * @Groups("api")
-     */
-    public function getStatus(): string
-    {
-        return $this->status;
-    }
-
-    public function setStatus(string $status): void
-    {
-        $this->status = $status;
-    }
-
-    /**
-     * @Groups("api")
-     */
-    public function getTopic(): string
+    public function topic(): string
     {
         return $this->topic;
     }
 
-    public function setTopic(string $topic): self
+    public function changeTopic(string $topic): self
     {
         $this->topic = $topic;
 
         return $this;
     }
 
-    /**
-     * @Groups("api")
-     */
-    public function getStudents(): Collection
+    public function enroll(User $user): self
     {
-        return $this->students;
-    }
+        if (count($this->students) + 1 > self::MAXIMUM_CAPACITY) {
+            throw new StudentEnrolledToFullKlassException();
+        }
 
-    public function addStudent(User $user): self
-    {
         $this->students->add($user);
 
         return $this;
@@ -127,11 +102,33 @@ class Klass
         return $this;
     }
 
-    /**
-     * @Groups("api")
-     */
-    public function getRating(): ?ClassRating
+    public function rating(): ?ClassRating
     {
         return $this->rating;
+    }
+
+    /**
+     * @return ArrayCollection|Collection
+     */
+    public function students()
+    {
+        return $this->students;
+    }
+
+    public function status(): string
+    {
+        if ($this->students()->count()) {
+            if ($this->students()->count() >= 4) {
+                return self::FULL;
+            }
+
+            return self::BOOKED;
+        } else {
+            if ($this->startsAt()->diff(new \DateTimeImmutable())->days < 2) {
+                return self::CANCELLED;
+            }
+
+            return self::SCHEDULED;
+        }
     }
 }

@@ -2,9 +2,10 @@
 
 namespace App\Controller;
 
-use App\Classes\ClassStatusHandler;
 use App\Entity\Klass;
-use App\Repository\KlassRepository;
+use App\Exception\StudentEnrolledToFullKlassException;
+use App\Query\KlassListQuery;
+use App\Query\KlassView;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -18,9 +19,9 @@ class ClassController extends AbstractController
     /**
      * @Route("", methods={"GET"})
      */
-    public function all(KlassRepository $klassRepo): JsonResponse
+    public function all(KlassListQuery $klassListQuery): JsonResponse
     {
-        return $this->apiJson($klassRepo->findAll());
+        return $this->apiJson($klassListQuery->getAll());
     }
 
     /**
@@ -28,15 +29,15 @@ class ClassController extends AbstractController
      */
     public function book(Klass $klass, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($klass->getStatus() === ClassStatusHandler::FULL) {
+        try {
+            $klass->enroll($this->ensureUser());
+        } catch (StudentEnrolledToFullKlassException $exception) {
             throw new BadRequestHttpException('Class is full');
         }
 
-        $klass->addStudent($this->ensureUser());
-
         $entityManager->flush();
 
-        return $this->apiJson($klass);
+        return $this->apiJson(KlassView::fromKlass($klass));
     }
 
     /**
@@ -48,6 +49,6 @@ class ClassController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->apiJson($klass);
+        return $this->apiJson(KlassView::fromKlass($klass));
     }
 }
