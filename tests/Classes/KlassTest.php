@@ -4,6 +4,7 @@ namespace App\Tests\Classes;
 
 use App\Entity\Klass;
 use App\Entity\User;
+use App\Exception\StudentEnrolledToFullKlassException;
 use PHPUnit\Framework\TestCase;
 
 class KlassTest extends TestCase
@@ -35,5 +36,16 @@ class KlassTest extends TestCase
             [3, Klass::BOOKED],
             [4, Klass::FULL],
         ];
+    }
+
+    public function testKlassCanEnrollNoMoreThanFourStudents()
+    {
+        $klass = new Klass('Class topic', new \DateTimeImmutable('2013-04-27 17:00'));
+        $klass->enroll(new User()); //1
+        $klass->enroll(new User()); //2
+        $klass->enroll(new User()); //3
+        $klass->enroll(new User()); //4
+        $this->expectException(StudentEnrolledToFullKlassException::class);
+        $klass->enroll(new User()); //too much
     }
 }

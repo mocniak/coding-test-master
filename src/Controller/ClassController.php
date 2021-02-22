@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Klass;
+use App\Exception\StudentEnrolledToFullKlassException;
 use App\Query\KlassListQuery;
 use App\Query\KlassView;
 use Doctrine\ORM\EntityManagerInterface;
@@ -28,11 +29,11 @@ class ClassController extends AbstractController
      */
     public function book(Klass $klass, EntityManagerInterface $entityManager): JsonResponse
     {
-        if ($klass->status() === Klass::FULL) {
+        try {
+            $klass->enroll($this->ensureUser());
+        } catch (StudentEnrolledToFullKlassException $exception) {
             throw new BadRequestHttpException('Class is full');
         }
-
-        $klass->enroll($this->ensureUser());
 
         $entityManager->flush();
 

@@ -1,12 +1,12 @@
 <?php
 
-
 namespace App\Entity;
 
+use App\Exception\StudentEnrolledToFullKlassException;
+use App\Repository\KlassRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\KlassRepository;
 
 /**
  * @ORM\Entity(repositoryClass=KlassRepository::class)
@@ -19,6 +19,7 @@ class Klass
     const CANCELLED = 'cancelled';
     const FULL = 'full';
 
+    const MAXIMUM_CAPACITY = 4;
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -85,6 +86,10 @@ class Klass
 
     public function enroll(User $user): self
     {
+        if (count($this->students) + 1 > self::MAXIMUM_CAPACITY) {
+            throw new StudentEnrolledToFullKlassException();
+        }
+
         $this->students->add($user);
 
         return $this;
