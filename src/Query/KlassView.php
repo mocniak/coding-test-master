@@ -26,13 +26,13 @@ class KlassView
     public static function fromKlass(Klass $klass): self
     {
         return new self(
-            $klass->getId(),
+            $klass->id(),
             $klass->startsAt(),
             $klass->topic(),
             $klass->status(),
             array_map(function (User $student) {
                 return ['id' => $student->getId()];
-            }, $klass->getStudents()->toArray())
+            }, $klass->students()->toArray())
         );
     }
 

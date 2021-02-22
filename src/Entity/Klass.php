@@ -55,7 +55,7 @@ class Klass
         $this->startsAt = $startsAt;
     }
 
-    public function getId(): int
+    public function id(): int
     {
         return $this->id;
     }
@@ -110,15 +110,15 @@ class Klass
     /**
      * @return ArrayCollection|Collection
      */
-    public function getStudents()
+    public function students()
     {
         return $this->students;
     }
 
     public function status(): string
     {
-        if ($this->getStudents()->count()) {
-            if ($this->getStudents()->count() >= 4) {
+        if ($this->students()->count()) {
+            if ($this->students()->count() >= 4) {
                 return self::FULL;
             }
 

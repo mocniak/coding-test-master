@@ -35,7 +35,7 @@ class ClassRating
      */
     public function getClassId(): int
     {
-        return $this->class->getId();
+        return $this->class->id();
     }
 
     /**
