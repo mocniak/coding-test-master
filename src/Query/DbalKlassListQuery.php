@@ -2,45 +2,34 @@
 
 namespace App\Query;
 
-use Doctrine\DBAL\Driver\Connection;
+use App\Entity\Klass;
+use App\Entity\User;
+use App\Repository\KlassRepository;
 
 class DbalKlassListQuery implements KlassListQuery
 {
-    private $connection;
+    private KlassRepository $klassRepository;
 
-    public function __construct(Connection $connection)
+    public function __construct(KlassRepository $klassRepository)
     {
-        $this->connection = $connection;
+        $this->klassRepository = $klassRepository;
     }
 
     /** @return KlassView[] */
     public function getAll(): array
     {
-        $queryBuilder = $this->connection->createQueryBuilder();
-        $queryBuilder
-            ->select('k.id', 'k.starts_at', 'k.topic')
-            ->from('klass', 'k')
-        ;
+        $allKlasses = $this->klassRepository->findAll();
 
-        $klassesData = $this->connection->fetchAllAssociative($queryBuilder->getSQL(), $queryBuilder->getParameters());
-
-        $studentsData = $this->connection->getWrappedConnection()
-            ->query('SELECT * FROM klass_user')
-            ->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_ASSOC)
-        ;
-
-        return array_map(function (array $klassData) use ($studentsData) {
-            $klassId = (int) $klassData['id'];
-            $studentIds = $studentsData[$klassId] ?? [];
-
+        return array_map(function (Klass $klass) {
             return new KlassView(
-                $klassId,
-                new \DateTimeImmutable($klassData['starts_at']),
-                $klassData['topic'],
-                array_map(function (array $studentId) {
-                    return ['id' => (int) $studentId['user_id']];
-                }, $studentIds)
+                $klass->getId(),
+                $klass->startsAt(),
+                $klass->topic(),
+                $klass->status(),
+                array_map(function (User $student) {
+                    return ['id' => $student->getId()];
+                }, $klass->getStudents()->toArray())
             );
-        }, $klassesData);
+        }, $allKlasses);
     }
 }

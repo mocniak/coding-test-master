@@ -25,7 +25,7 @@ class ClassController extends AbstractController
             return [
                 'id' => $klass->id,
                 'startsAt' => $klass->startsAt->format(\DateTimeInterface::ISO8601),
-                'status' => 'scheduled',
+                'status' => $klass->status,
                 'topic' => $klass->topic,
                 'students' => $klass->studentIds,
                 ];

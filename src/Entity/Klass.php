@@ -3,13 +3,10 @@
 
 namespace App\Entity;
 
-use App\Classes\ClassStatusHandler;
-use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\KlassRepository;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=KlassRepository::class)
@@ -17,6 +14,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Klass
 {
+    const SCHEDULED = 'scheduled';
+    const BOOKED = 'booked';
+    const CANCELLED = 'cancelled';
+    const FULL = 'full';
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -25,14 +27,9 @@ class Klass
     private int $id;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime_immutable")
      */
-    private DateTimeInterface $startsAt;
-
-    /**
-     * @ORM\Column(type="string")
-     */
-    private string $status = ClassStatusHandler::SCHEDULED;
+    private \DateTimeImmutable $startsAt;
 
     /**
      * @ORM\Column(type="string")
@@ -62,12 +59,12 @@ class Klass
         return $this->id;
     }
 
-    public function startsAt(): DateTimeInterface
+    public function startsAt(): \DateTimeImmutable
     {
         return $this->startsAt;
     }
 
-    public function changeStartsAt(DateTimeInterface $startsAt): self
+    public function changeStartsAt(\DateTimeImmutable $startsAt): self
     {
         $this->startsAt = $startsAt;
 
@@ -103,5 +100,30 @@ class Klass
     public function rating(): ?ClassRating
     {
         return $this->rating;
+    }
+
+    /**
+     * @return ArrayCollection|Collection
+     */
+    public function getStudents()
+    {
+        return $this->students;
+    }
+
+    public function status(): string
+    {
+        if ($this->getStudents()->count()) {
+            if ($this->getStudents()->count() >= 4) {
+                return self::FULL;
+            }
+
+            return self::BOOKED;
+        } else {
+            if ($this->startsAt()->diff(new \DateTimeImmutable())->days < 2) {
+                return self::CANCELLED;
+            }
+
+            return self::SCHEDULED;
+        }
     }
 }

@@ -91,6 +91,14 @@ final class ClassesContext implements Context
     }
 
     /**
+     * @Given nobody attends to class :classTopic
+     */
+    public function nobodyAttendsToClass(string $classTopic)
+    {
+        //intentionally left blank
+    }
+
+    /**
      * @When I open a list of classes
      */
     public function iOpenAListOfClasses()
