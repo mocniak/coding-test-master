@@ -7,11 +7,13 @@ namespace App\Tests\Behat;
 use App\Entity\Klass;
 use App\Entity\User;
 use App\Repository\KlassRepository;
+use App\Repository\UserRepository;
 use Behat\Behat\Context\Context;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
+use Webmozart\Assert\Assert;
 
 /**
  * This context class contains the definitions of the steps used by the demo
@@ -31,18 +33,26 @@ final class ClassesContext implements Context
 
     private ManagerRegistry $managerRegistry;
 
+    private UserRepository $userRepository;
+
     public function __construct(
         KernelInterface $kernel,
         KlassRepository $klassRepository,
-        ManagerRegistry $managerRegistry
+        ManagerRegistry $managerRegistry,
+        UserRepository $userRepository
     ) {
         $this->kernel = $kernel;
         $this->klassRepository = $klassRepository;
         $this->managerRegistry = $managerRegistry;
         $managerRegistry->getManagerForClass(Klass::class)
-            ->createQuery('DELETE FROM App\Entity\Klass')
+            ->createQuery('DELETE FROM App\Entity\Klass AS k')
             ->execute()
         ;
+        $managerRegistry->getManagerForClass(Klass::class)
+            ->createQuery('DELETE FROM App\Entity\User AS u')
+            ->execute()
+        ;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -72,7 +82,12 @@ final class ClassesContext implements Context
     public function userAttendsToClass(string $username, string $classTopic)
     {
         $klass = $this->klassRepository->findOneBy(['topic' => $classTopic]);
-        $klass->enroll((new User())->setEmail($username.'@example.com'));
+        $newStudent = (new User())->setEmail($username.'@example.com')->setPassword('testPass');
+        $manager = $this->managerRegistry->getManagerForClass(User::class);
+        $manager->persist($newStudent);
+        $klass->enroll($newStudent);
+        $manager->flush();
+        $manager->clear();
     }
 
     /**
@@ -84,10 +99,28 @@ final class ClassesContext implements Context
     }
 
     /**
-     * @Then I see 1st available class :arg1 is :arg2
+     * @Then I see 1st available class :parameter is :expectedValue
      */
-    public function iSeeStAvailableClassIs($arg1, $arg2)
+    public function iSeeStAvailableClassIs($parameter, $expectedValue)
     {
-        var_dump($this->response->getContent());
+        if (preg_match('/\d{4}-\d{2}-\d{2}/', $expectedValue)) {
+            $expectedValue = (new \DateTimeImmutable($expectedValue))->format(\DateTimeInterface::ISO8601);
+        }
+        Assert::eq(json_decode($this->response->getContent(), true)[0][$parameter], $expectedValue);
+    }
+
+    /**
+     * @Then I see that :username is attending to :classTopic
+     */
+    public function iSeeThatIsAttendingTo(string $username, string $classTopic)
+    {
+        $classes = json_decode($this->response->getContent(), true);
+        $class = array_filter($classes, function (array $class) use ($classTopic) {
+            return $class['topic'] === $classTopic;
+        })[0];
+        $returnedStudents = $class['students'];
+        $expectedStudentId = $this->userRepository->findOneBy(['email' => $username.'@example.com'])->getId();
+        $expected = ['id' => $expectedStudentId];
+        Assert::inArray($expected, $returnedStudents);
     }
 }

@@ -22,10 +22,25 @@ class DbalKlassListQuery implements KlassListQuery
             ->from('klass', 'k')
         ;
 
-        $klassData = $this->connection->fetchAll($queryBuilder->getSQL(), $queryBuilder->getParameters());
+        $klassesData = $this->connection->fetchAllAssociative($queryBuilder->getSQL(), $queryBuilder->getParameters());
 
-        return array_map(function (array $klassData) {
-            return new KlassView((int) $klassData['id'], new \DateTimeImmutable($klassData['starts_at']), $klassData['topic']);
-        }, $klassData);
+        $studentsData = $this->connection->getWrappedConnection()
+            ->query('SELECT * FROM klass_user')
+            ->fetchAll(\PDO::FETCH_GROUP | \PDO::FETCH_ASSOC)
+        ;
+
+        return array_map(function (array $klassData) use ($studentsData) {
+            $klassId = (int) $klassData['id'];
+            $studentIds = $studentsData[$klassId] ?? [];
+
+            return new KlassView(
+                $klassId,
+                new \DateTimeImmutable($klassData['starts_at']),
+                $klassData['topic'],
+                array_map(function (array $studentId) {
+                    return ['id' => (int) $studentId['user_id']];
+                }, $studentIds)
+            );
+        }, $klassesData);
     }
 }

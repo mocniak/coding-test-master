@@ -27,7 +27,7 @@ class ClassController extends AbstractController
                 'startsAt' => $klass->startsAt->format(\DateTimeInterface::ISO8601),
                 'status' => 'scheduled',
                 'topic' => $klass->topic,
-                'students' => [],
+                'students' => $klass->studentIds,
                 ];
         }, $klassListQuery->getAll()));
     }
