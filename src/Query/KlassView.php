@@ -8,11 +8,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 class KlassView
 {
-    public int $id;
-    public \DateTimeImmutable $startsAt;
-    public string $topic;
-    public array $students;
-    public string $status;
+    private int $id;
+    private \DateTimeImmutable $startsAt;
+    private string $topic;
+    private array $students;
+    private string $status;
 
     public function __construct(int $id, \DateTimeImmutable $startsAt, string $topic, string $status, array $students)
     {

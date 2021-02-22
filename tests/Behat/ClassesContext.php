@@ -15,19 +15,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Webmozart\Assert\Assert;
 
-/**
- * This context class contains the definitions of the steps used by the demo
- * feature file. Learn how to get started with Behat and BDD on Behat's website.
- *
- * @see http://behat.org/en/latest/quick_start.html
- */
 final class ClassesContext implements Context
 {
-    /** @var KernelInterface */
-    private $kernel;
+    private KernelInterface $kernel;
 
-    /** @var Response|null */
-    private $response;
+    private ?Response $response;
 
     private KlassRepository $klassRepository;
 
