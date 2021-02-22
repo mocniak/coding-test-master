@@ -112,7 +112,7 @@ final class ClassesContext implements Context
     public function iSeeStAvailableClassIs($parameter, $expectedValue)
     {
         if (preg_match('/\d{4}-\d{2}-\d{2}/', $expectedValue)) {
-            $expectedValue = (new \DateTimeImmutable($expectedValue))->format(\DateTimeInterface::ISO8601);
+            $expectedValue = (new \DateTimeImmutable($expectedValue))->format(\DateTimeInterface::ATOM);
         }
         Assert::eq(json_decode($this->response->getContent(), true)[0][$parameter], $expectedValue);
     }

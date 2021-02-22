@@ -21,15 +21,7 @@ class DbalKlassListQuery implements KlassListQuery
         $allKlasses = $this->klassRepository->findAll();
 
         return array_map(function (Klass $klass) {
-            return new KlassView(
-                $klass->getId(),
-                $klass->startsAt(),
-                $klass->topic(),
-                $klass->status(),
-                array_map(function (User $student) {
-                    return ['id' => $student->getId()];
-                }, $klass->getStudents()->toArray())
-            );
+            return KlassView::fromKlass($klass);
         }, $allKlasses);
     }
 }
