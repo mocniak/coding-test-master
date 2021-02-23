@@ -3,6 +3,7 @@ default:
         default:
             contexts:
                 - App\Tests\Behat\ClassesContext
+                - App\Tests\Behat\RatingPopupContext
 
     extensions:
         FriendsOfBehat\SymfonyExtension:
