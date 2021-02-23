@@ -34,7 +34,7 @@ class RatingPopupTest extends TestCase
     }
 
     /** @depends testIfUserAttended5TimesAnd24HoursHasPassedSinceTheEndOfTheClassShowThemAPopup */
-    public function testIfUserDismissedRatingPopupShowItAgainAfter15ClassesAnd24Hours(array $array)
+    public function testIfUserDismissedRatingPopupShowItAgainAfter15ClassesAnd24Hours(array $array): array
     {
         /**
          * @var FakeClock   $clock
@@ -56,7 +56,7 @@ class RatingPopupTest extends TestCase
     }
 
     /** @depends testIfUserAttended5TimesAnd24HoursHasPassedSinceTheEndOfTheClassShowThemAPopup */
-    public function testIfUserSubmittedRatingShowItAgainAfter25ClassesAnd24Hours(array $array)
+    public function testIfUserSubmittedRatingShowItAgainAfter25ClassesAnd24Hours(array $array): array
     {
         /**
          * @var FakeClock   $clock
