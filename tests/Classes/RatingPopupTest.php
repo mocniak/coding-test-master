@@ -10,7 +10,7 @@ class RatingPopupTest extends TestCase
 {
     public function testIfUserAttended4TimesDoesNotShowThemAPopup()
     {
-        $ratingPopup = new RatingPopup();
+        $ratingPopup = new RatingPopup(0);
         $now = new \DateTimeImmutable();
         for ($i = 0; $i < 4; ++$i) {
             $ratingPopup->userAttendedAClass($now);
@@ -21,7 +21,7 @@ class RatingPopupTest extends TestCase
     public function testIfUserAttended5TimesAnd24HoursHasPassedSinceTheEndOfTheClassShowThemAPopup(): array
     {
         $clock = new FakeClock();
-        $ratingPopup = new RatingPopup();
+        $ratingPopup = new RatingPopup(0);
         for ($i = 0; $i < 5; ++$i) {
             $ratingPopup->userAttendedAClass($clock->getCurrentTime());
         }
