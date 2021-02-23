@@ -11,7 +11,8 @@ Feature:
 
   Scenario: Showing user a popup after they attended to 5 classes
     Given there is a user "Stefano"
-    And "Stefano" attended to 4 classes
+    And "Stefano" attended to 5 classes
+    And 24 hours has passed
     When I ask if the popup should be showed to "Stefano"
     Then I see that I should not see a popup
 

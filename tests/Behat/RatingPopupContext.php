@@ -8,6 +8,7 @@ use App\Entity\RatingPopup;
 use App\Entity\User;
 use App\Repository\RatingPopupRepository;
 use App\Repository\UserRepository;
+use App\Tests\Stub\FakeClock;
 use Behat\Behat\Context\Context;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,16 +28,20 @@ final class RatingPopupContext implements Context
 
     private RatingPopupRepository $popupRepository;
 
+    private FakeClock $fakeClock;
+
     public function __construct(
         KernelInterface $kernel,
         ManagerRegistry $managerRegistry,
         UserRepository $userRepository,
-        RatingPopupRepository $popupRepository
+        RatingPopupRepository $popupRepository,
+        FakeClock $fakeClock
     ) {
         $this->kernel = $kernel;
         $this->managerRegistry = $managerRegistry;
         $this->userRepository = $userRepository;
         $this->popupRepository = $popupRepository;
+        $this->fakeClock = $fakeClock;
     }
 
     /**
@@ -85,6 +90,14 @@ final class RatingPopupContext implements Context
     {
         $result = json_decode($this->response->getContent(), true);
         Assert::false($result['visible']);
+    }
+
+    /**
+     * @Given :hours hours has passed
+     */
+    public function hoursHasPassed(int $hours)
+    {
+        $this->fakeClock->setCurrentTime($this->fakeClock->getCurrentTime()->add(new \DateInterval('PT'.$hours.'H')));
     }
 
     /**
