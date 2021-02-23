@@ -2,7 +2,6 @@
 
 namespace App\Tests\Classes;
 
-use App\Common\RealClock;
 use App\Entity\RatingPopup;
 use App\Tests\Stub\FakeClock;
 use PHPUnit\Framework\TestCase;
@@ -11,24 +10,25 @@ class RatingPopupTest extends TestCase
 {
     public function testIfUserAttended4TimesDoesNotShowThemAPopup()
     {
-        $ratingPopup = new RatingPopup(new RealClock());
+        $ratingPopup = new RatingPopup();
+        $now = new \DateTimeImmutable();
         for ($i = 0; $i < 4; ++$i) {
-            $ratingPopup->userAttendedAClass();
-            self::assertFalse($ratingPopup->shouldBeShowed());
+            $ratingPopup->userAttendedAClass($now);
+            self::assertFalse($ratingPopup->shouldBeShowed($now));
         }
     }
 
     public function testIfUserAttended5TimesAnd24HoursHasPassedSinceTheEndOfTheClassShowThemAPopup(): array
     {
         $clock = new FakeClock();
-        $ratingPopup = new RatingPopup($clock);
+        $ratingPopup = new RatingPopup();
         for ($i = 0; $i < 5; ++$i) {
-            $ratingPopup->userAttendedAClass();
+            $ratingPopup->userAttendedAClass($clock->getCurrentTime());
         }
         $clock->setCurrentTime($clock->getCurrentTime()->add(new \DateInterval('PT24H')));
-        self::assertFalse($ratingPopup->shouldBeShowed());
+        self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
         $clock->setCurrentTime($clock->getCurrentTime()->add(new \DateInterval('PT1H')));
-        self::assertTrue($ratingPopup->shouldBeShowed());
+        self::assertTrue($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
 
         return [$clock, $ratingPopup];
     }
@@ -44,13 +44,13 @@ class RatingPopupTest extends TestCase
 
         $ratingPopup->popupDismissed();
         for ($i = 0; $i < 15; ++$i) {
-            $ratingPopup->userAttendedAClass();
-            self::assertFalse($ratingPopup->shouldBeShowed());
+            $ratingPopup->userAttendedAClass($clock->getCurrentTime());
+            self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
         }
         $clock->setCurrentTime($clock->getCurrentTime()->add(new \DateInterval('PT24H')));
-        self::assertFalse($ratingPopup->shouldBeShowed());
+        self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
         $clock->setCurrentTime($clock->getCurrentTime()->add(new \DateInterval('PT1H')));
-        self::assertTrue($ratingPopup->shouldBeShowed());
+        self::assertTrue($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
 
         return [$clock, $ratingPopup];
     }
@@ -66,13 +66,13 @@ class RatingPopupTest extends TestCase
 
         $ratingPopup->ratingSubmitted();
         for ($i = 0; $i < 25; ++$i) {
-            $ratingPopup->userAttendedAClass();
-            self::assertFalse($ratingPopup->shouldBeShowed());
+            $ratingPopup->userAttendedAClass($clock->getCurrentTime());
+            self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
         }
         $clock->setCurrentTime($clock->getCurrentTime()->add(new \DateInterval('PT24H')));
-        self::assertFalse($ratingPopup->shouldBeShowed());
+        self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
         $clock->setCurrentTime($clock->getCurrentTime()->add(new \DateInterval('PT1H')));
-        self::assertTrue($ratingPopup->shouldBeShowed());
+        self::assertTrue($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
 
         return [$clock, $ratingPopup];
     }
@@ -87,9 +87,9 @@ class RatingPopupTest extends TestCase
         list($clock, $ratingPopup) = $array;
 
         $ratingPopup->popupDismissed();
-        self::assertFalse($ratingPopup->shouldBeShowed());
-        $ratingPopup->userAttendedAClass();
-        self::assertFalse($ratingPopup->shouldBeShowed());
+        self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
+        $ratingPopup->userAttendedAClass($clock->getCurrentTime());
+        self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
     }
 
     /** @depends testIfUserSubmittedRatingShowItAgainAfter25ClassesAnd24Hours */
@@ -102,8 +102,8 @@ class RatingPopupTest extends TestCase
         list($clock, $ratingPopup) = $array;
 
         $ratingPopup->popupDismissed();
-        self::assertFalse($ratingPopup->shouldBeShowed());
-        $ratingPopup->userAttendedAClass();
-        self::assertFalse($ratingPopup->shouldBeShowed());
+        self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
+        $ratingPopup->userAttendedAClass($clock->getCurrentTime());
+        self::assertFalse($ratingPopup->shouldBeShowed($clock->getCurrentTime()));
     }
 }
