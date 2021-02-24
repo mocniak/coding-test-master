@@ -48,4 +48,29 @@ class KlassTest extends TestCase
         $this->expectException(StudentEnrolledToFullKlassException::class);
         $klass->enroll(new User()); //too much
     }
+
+    /** @dataProvider studentsTimesAndKlassStatuses */
+    public function testKlassHasEndedStatusWhenItHadAttendeesAndItIsFinished(
+        string $studentCount,
+        string $startedAt,
+        string $expectedStatus
+    ) {
+        $klass = new Klass('Class topic', new \DateTimeImmutable($startedAt));
+        for ($i = 0; $i < $studentCount; ++$i) {
+            $klass->enroll(new User());
+        }
+        $this->assertEquals($expectedStatus, $klass->status());
+    }
+    public function studentsTimesAndKlassStatuses(): array
+    {
+        return [
+            [0, '+3 days', Klass::SCHEDULED],
+            [0, '+1 day', Klass::CANCELLED],
+            [0, '60 minutes ago', Klass::CANCELLED],
+            [0, '10 days ago', Klass::CANCELLED],
+            [1, '59 minutes ago', Klass::BOOKED],
+            [4, '59 minutes ago', Klass::FULL],
+            [1, '60 minutes ago', Klass::ENDED],
+        ];
+    }
 }

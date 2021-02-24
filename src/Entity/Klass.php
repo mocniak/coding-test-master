@@ -20,6 +20,9 @@ class Klass
     const FULL = 'full';
 
     const MAXIMUM_CAPACITY = 4;
+    const DURATION = 'PT1H'; // \DateInterval format
+    const CANCELLATION_DEADLINE = 'P2D'; // \DateInterval format
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -124,7 +127,7 @@ class Klass
 
             return self::BOOKED;
         } else {
-            if ($this->startsAt()->diff(new \DateTimeImmutable())->days < 2) {
+            if ($this->startsAt->sub(new \DateInterval(self::CANCELLATION_DEADLINE)) <= new \DateTimeImmutable()) {
                 return self::CANCELLED;
             }
 
