@@ -19,9 +19,9 @@ class KlassTest extends TestCase
     }
 
     /** @dataProvider studentsAndKlassStatuses */
-    public function testKlassStatus(int $numberOfAttendingStudents, string $expectedStatus)
+    public function testKlassIsFullWhenReaches4Students(int $numberOfAttendingStudents, string $expectedStatus)
     {
-        $klass = new Klass('Class topic', new \DateTimeImmutable('2013-04-27 17:00'));
+        $klass = new Klass('Class topic', new \DateTimeImmutable('+3 days'));
         for ($i = 0; $i < $numberOfAttendingStudents; ++$i) {
             $klass->enroll(new User());
         }

@@ -18,6 +18,7 @@ class Klass
     const BOOKED = 'booked';
     const CANCELLED = 'cancelled';
     const FULL = 'full';
+    const ENDED = 'ended';
 
     const MAXIMUM_CAPACITY = 4;
     const DURATION = 'PT1H'; // \DateInterval format
@@ -121,7 +122,9 @@ class Klass
     public function status(): string
     {
         if ($this->students()->count()) {
-            if ($this->students()->count() >= 4) {
+            if ($this->startsAt->add(new \DateInterval(self::DURATION)) <= new \DateTimeImmutable('now')) {
+                return self::ENDED;
+            } elseif ($this->students()->count() >= 4) {
                 return self::FULL;
             }
 
