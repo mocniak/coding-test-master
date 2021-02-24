@@ -80,17 +80,27 @@ final class RatingPopupContext implements Context
     public function iAskIfThePopupShouldBeShowedToMe(string $username)
     {
         $userId = $this->userRepository->findOneBy(['email' => $username.'@example.com'])->getId();
-        $this->response = $this->kernel->handle(Request::create('/api/rating-popup/'.$userId.'/visible', 'GET'));
+        $this->response = $this->kernel->handle(Request::create('/api/rating-popup/'.$userId.'/visible'));
     }
 
     /**
-     * @Then I see that I should not see a popup
+     * @Then I see that they should not see a popup
      */
     public function iSeeThatIShouldNotSeeAPopup()
     {
         $result = json_decode($this->response->getContent(), true);
         Assert::false($result['visible']);
     }
+
+    /**
+     * @Then I see that they should see a popup
+     */
+    public function iSeeThatTheyShouldSeeAPopup()
+    {
+        $result = json_decode($this->response->getContent(), true);
+        Assert::true($result['visible']);
+    }
+
 
     /**
      * @Given :hours hours has passed
@@ -101,18 +111,20 @@ final class RatingPopupContext implements Context
     }
 
     /**
-     * @When I dismiss the popup
+     * @When :username dismisses their popup
      */
-    public function iDismissThePopup()
+    public function userDismissesTheirPopup(string $username)
     {
-        throw new PendingException();
+        $userId = $this->userRepository->findOneBy(['email' => $username.'@example.com'])->getId();
+        $this->response = $this->kernel->handle(Request::create('/api/rating-popup/'.$userId.'/dismissed', 'POST'));
     }
 
     /**
-     * @When I rated my classes
+     * @When :username rates their classes
      */
-    public function iRatedMyClasses()
+    public function userRatesTheirClasses(string $username)
     {
-        throw new PendingException();
+        $userId = $this->userRepository->findOneBy(['email' => $username.'@example.com'])->getId();
+        $this->response = $this->kernel->handle(Request::create('/api/rating-popup/'.$userId.'/rated', 'POST'));
     }
 }
