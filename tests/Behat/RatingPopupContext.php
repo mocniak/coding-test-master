@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Tests\Behat;
 
-use App\Entity\RatingPopup;
 use App\Entity\User;
 use App\Repository\RatingPopupRepository;
 use App\Repository\UserRepository;
@@ -61,17 +60,9 @@ final class RatingPopupContext implements Context
     public function attendedToClasses(string $username, int $attendanceCount)
     {
         $userId = $this->userRepository->findOneBy(['email' => $username.'@example.com'])->getId();
-        $ratingPopup = $this->popupRepository->findOneBy(['userId' => $userId]);
-        if ($ratingPopup === null) {
-            $ratingPopup = new RatingPopup($userId);
-            $manager = $this->managerRegistry->getManagerForClass(RatingPopup::class);
-            $manager->persist($ratingPopup);
+        for ($i = 0; $i < $attendanceCount; ++$i) {
+            $this->kernel->handle(Request::create('/api/rating-popup/'.$userId.'/class-attended', 'POST'));
         }
-        for ($i = 0; $i < $attendanceCount; $i++) {
-            $ratingPopup->userAttendedAClass(new \DateTimeImmutable());
-        }
-        $manager = $this->managerRegistry->getManagerForClass(RatingPopup::class);
-        $manager->flush();
     }
 
     /**
@@ -100,7 +91,6 @@ final class RatingPopupContext implements Context
         $result = json_decode($this->response->getContent(), true);
         Assert::true($result['visible']);
     }
-
 
     /**
      * @Given :hours hours has passed

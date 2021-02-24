@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use App\Common\Clock;
-use App\Entity\Klass;
 use App\Entity\RatingPopup;
 use App\Entity\User;
-use App\Query\KlassView;
 use App\Repository\RatingPopupRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -19,7 +17,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class RatingPopupController extends AbstractController
 {
     /**
-     * @Route("/{id}/class_attended", methods={"POST"})
+     * @Route("/{id}/class-attended", methods={"POST"})
      */
     public function classAttended(
         User $user,
@@ -34,6 +32,32 @@ class RatingPopupController extends AbstractController
         }
         $ratingPopup->userAttendedAClass($clock->getCurrentTime());
 
+        $entityManager->flush();
+
+        return new Response(null, Response::HTTP_ACCEPTED);
+    }
+
+    /**
+     * @Route("/{userId}/rated", methods={"POST"})
+     */
+    public function rated(
+        RatingPopup $ratingPopup,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $ratingPopup->ratingSubmitted();
+        $entityManager->flush();
+
+        return new Response(null, Response::HTTP_ACCEPTED);
+    }
+
+    /**
+     * @Route("/{userId}/dismissed", methods={"POST"})
+     */
+    public function dismissed(
+        RatingPopup $ratingPopup,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $ratingPopup->popupDismissed();
         $entityManager->flush();
 
         return new Response(null, Response::HTTP_ACCEPTED);
