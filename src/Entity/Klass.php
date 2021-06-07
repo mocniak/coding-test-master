@@ -20,6 +20,8 @@ class Klass
     const FULL = 'full';
 
     const MAXIMUM_CAPACITY = 4;
+    const DURATION = 'PT1H'; // \DateInterval format
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
