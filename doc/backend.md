@@ -28,6 +28,7 @@ Some dummy test data is created along with a test user:
 email: user@lingoda.com
 password: almafa
 ```
+## Tasks
 
 ### Privacy breach
 
@@ -50,7 +51,7 @@ If the user submits a rating, show it again after 25 classes were attended plus 
 Do not show the notification to any user more than twice.
 
 
-# Bug in class rating API
+### Bug in class rating API
 
 QA says that sometimes rating a class fails and results in a http 500 response.
 Luckily this feature is not in production yet. Please find the bug and fix it.
@@ -61,7 +62,7 @@ Luckily this feature is not in production yet. Please find the bug and fix it.
 When a class has ended and it had attendees, we need to set its status to ended.
 
 
-### Questions
+## Questions
 
 * Oh, we haven't implemented XSRF protection. Do I need to worry?
 * How can we prevent bugs coming from missing null checks?
