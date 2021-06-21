@@ -19,9 +19,9 @@ class KlassTest extends TestCase
     }
 
     /** @dataProvider studentsAndKlassStatuses */
-    public function testKlassStatus(int $numberOfAttendingStudents, string $expectedStatus)
+    public function testKlassIsFullWhenReaches4Students(int $numberOfAttendingStudents, string $expectedStatus)
     {
-        $klass = new Klass('Class topic', new \DateTimeImmutable('2013-04-27 17:00'));
+        $klass = new Klass('Class topic', new \DateTimeImmutable('+3 days'));
         for ($i = 0; $i < $numberOfAttendingStudents; ++$i) {
             $klass->enroll(new User());
         }
@@ -47,5 +47,30 @@ class KlassTest extends TestCase
         $klass->enroll(new User()); //4
         $this->expectException(StudentEnrolledToFullKlassException::class);
         $klass->enroll(new User()); //too much
+    }
+
+    /** @dataProvider studentsTimesAndKlassStatuses */
+    public function testKlassHasEndedStatusWhenItHadAttendeesAndItIsFinished(
+        string $studentCount,
+        string $startedAt,
+        string $expectedStatus
+    ) {
+        $klass = new Klass('Class topic', new \DateTimeImmutable($startedAt));
+        for ($i = 0; $i < $studentCount; ++$i) {
+            $klass->enroll(new User());
+        }
+        $this->assertEquals($expectedStatus, $klass->status());
+    }
+    public function studentsTimesAndKlassStatuses(): array
+    {
+        return [
+            [0, '+3 days', Klass::SCHEDULED],
+            [0, '+1 day', Klass::CANCELLED],
+            [0, '60 minutes ago', Klass::CANCELLED],
+            [0, '10 days ago', Klass::CANCELLED],
+            [1, '59 minutes ago', Klass::BOOKED],
+            [4, '59 minutes ago', Klass::FULL],
+            [1, '60 minutes ago', Klass::ENDED],
+        ];
     }
 }
